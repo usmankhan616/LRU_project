@@ -1,155 +1,62 @@
 # Advanced Cache Algorithm Visualizer
 
-A real-time visualization tool for comparing LRU, LFU, and LRU-K cache eviction policies.
+An interactive, real-time visualizer that compares the performance of LRU, LFU, and LRU-K cache eviction policies. This tool allows users to see how different algorithms handle various data access patterns and helps in understanding their core mechanics and trade-offs.
 
-## 🔧 Fixed Issues
+### ✨ [Live Demo](https://your-render-app-url.onrender.com) ✨
 
-### Problem Description
-The original project had visualization issues where:
-- ✅ When Standard LRU and Standard LFU are both selected, only LRU works, LFU graph doesn't appear. **FIXED**
-- ✅ When LFU is used with LRU-K, LFU works fine. **WORKING** 
-- ✅ When all three selected: LRU and LRU-K work, LFU doesn't show. **FIXED**
+*(Replace the link above with your actual Render URL!)*
 
-### Root Cause
-The issue was in the JavaScript frontend code (`frontend/index.html`) in the `updateList` function call for the LRU-K main cache. The function parameters were in the wrong order:
+---
 
-**Before (Broken):**
-```javascript
-updateList(ui.lruk.main, data.lruk_cache.state.main_cache, data.lruk_cache.last_event, 'lruk');
-```
+## Understanding the Algorithms
 
-**After (Fixed):**
-```javascript
-updateList(ui.lruk.main, data.lruk_cache.state.main_cache, data.current_key, data.lruk_cache.last_event, 'lruk');
-```
+This project visualizes three key cache eviction algorithms:
 
-The `currentKey` parameter was missing, which caused the LFU visualization to fail when all three caches were selected.
+* **LRU (Least Recently Used):** This is one of the most common caching algorithms. When the cache is full and a new item needs to be added, LRU discards the item that has not been used for the longest amount of time. It keeps track of access history by treating the cache like a queue, moving any accessed item to the back.
 
-## 🚀 How to Run
+* **LFU (Least Frequently Used):** This algorithm evicts the item that has been accessed the fewest number of times. LFU assumes that items that have been accessed often are more likely to be accessed again. It's useful for workloads where some items are consistently popular.
 
-### Prerequisites
-- Python 3.7+
-- Modern web browser
+* **LRU-K (Least Recently Used - Kth):** An improvement over standard LRU. Instead of looking at the most recent access, LRU-K considers the time of the K-th most recent access. This makes it more robust against "scan" workloads (where a large number of items are accessed once) and helps it make better decisions about which items are truly "hot" versus just being accessed recently.
 
-### Setup & Run
-1. **Install Python dependencies:**
-   ```bash
-   cd Backend
-   pip install fastapi uvicorn websockets
-   ```
+---
 
-2. **Start the backend server:**
-   ```bash
-   cd Backend
-   python -m uvicorn main:app --host 127.0.0.1 --port 8000
-   ```
+## 🚀 Features
 
-3. **Open the frontend:**
-   - Navigate to `frontend/index.html` 
-   - Open it in your web browser
-   - The application will connect to the backend automatically
+The visualizer is packed with interactive controls to let you customize the simulation:
 
-## 🎮 How to Use
+* **Workload Types:**
+    * **Realistic:** Simulates a real-world scenario where a small set of "hot" items are accessed frequently (the 80/20 rule).
+    * **Scan:** Simulates accessing a long sequence of unique items, which is typically challenging for standard LRU.
+    * **Random:** Accesses items in a completely random order.
+    * **Custom:** Allows you to input your own sequence of page requests.
 
-### Basic Controls
-- **Cache Capacity**: Set the maximum number of items each cache can hold
-- **Workload Type**: Choose from:
-  - **Realistic**: 80% hot data, 20% cold data (simulates real-world usage)
-  - **Scan**: Sequential access pattern
-  - **Random**: Random access pattern  
-  - **Custom**: Define your own access sequence
-- **Speed**: Control simulation speed
-- **K-Value**: Set the K parameter for LRU-K algorithm
-- **Adaptive-K**: Enable dynamic K adjustment
+* **Cache Configuration:**
+    * **Cache Capacity:** Set the total number of items the cache can hold.
+    * **Speed:** Control the simulation speed with a simple slider.
+    * **Adaptive-K:** An option for LRU-K that dynamically adjusts the 'K' value based on workload patterns.
+    * **K-Value:** Manually set the 'K' for the LRU-K algorithm when not in adaptive mode.
 
-### Toggle Caches
-- Use the **ON/OFF** buttons to enable/disable individual caches
-- You can compare any combination of the three algorithms
-- Charts will automatically update to show only active caches
+* **Simulation Controls:**
+    * **Start/Pause/Clear:** Full control over the simulation flow.
+    * **Algorithm Toggles:** Enable or disable any of the three caches (LRU, LFU, LRU-K) to compare them head-to-head or focus on one.
 
-### What to Watch For
-- **Cache Contents**: Real-time view of what's stored in each cache
-- **Hit/Miss Statistics**: Track performance metrics
-- **Hit Rate Chart**: Visual comparison of algorithm performance over time
-- **LRU-K History/Main**: Observe the two-tier structure of LRU-K
+* **Live Performance Graph:**
+    * A real-time chart plots the **Hit Rate vs. Simulation Step** for each active algorithm, providing a clear visual comparison of their performance over time.
 
-## 🏗️ Architecture
+---
 
-### Backend (`Backend/main.py`)
-- **FastAPI** WebSocket server
-- **LRUCache**: Standard LRU using OrderedDict
-- **LFUCache**: Frequency-based eviction with robust implementation
-- **LRUKCache**: Two-tier cache with history and main sections
+## 🛠️ Tech Stack
 
-### Frontend (`frontend/index.html`)
-- **Pure JavaScript** with Chart.js for visualizations
-- **WebSocket** connection for real-time updates
-- **Responsive Design** with dark theme
+This project was built using a modern web stack:
 
-## 🧪 Testing
+* **Backend:**
+    * **Python:** The core programming language.
+    * **FastAPI:** A high-performance web framework for building the API and WebSocket server.
+    * **Gunicorn:** A production-grade WSGI server to run the FastAPI application.
 
-Run the test suite to verify everything works:
-```bash
-python test_fix.py
-```
+* **Frontend:**
+    * **HTML5, CSS3, JavaScript:** The foundation of the user interface.
+    * **Chart.js:** Used for rendering the live performance graph.
 
-This will test all three cache implementations individually.
-
-## 🎯 Cache Algorithm Details
-
-### LRU (Least Recently Used)
-- Evicts the item that was accessed longest ago
-- Uses Python's `OrderedDict` for O(1) operations
-- Simple and widely used in practice
-
-### LFU (Least Frequently Used)  
-- Evicts the item with the lowest access frequency
-- Maintains frequency counters and frequency lists
-- Better for workloads with clear hot/cold data patterns
-
-### LRU-K
-- Hybrid approach with history and main cache
-- Item must be accessed K times to be promoted to main cache
-- **Adaptive-K**: Automatically adjusts K based on promotion success rate
-- Good for filtering out one-time accesses
-
-## 🎨 Visualization Features
-
-- **Real-time Updates**: See cache states change with each access
-- **Color Coding**: Different colors for each algorithm and access types
-- **Interactive Charts**: Toggle algorithms on/off
-- **Performance Metrics**: Hit rates, miss counts, and trends
-- **Hover Effects**: Enhanced interactivity
-
-## 📊 Performance Comparison
-
-The visualizer helps you understand when each algorithm performs best:
-
-- **LRU**: Good for temporal locality (recent items accessed again)
-- **LFU**: Good for frequency patterns (popular items stay popular) 
-- **LRU-K**: Good for filtering noise while maintaining recency benefits
-
-## 🐛 Troubleshooting
-
-### Common Issues
-1. **WebSocket Connection Failed**: Ensure backend is running on port 8000
-2. **No Data Showing**: Check browser console for JavaScript errors
-3. **Charts Not Updating**: Verify at least one cache is toggled ON
-
-### Browser Compatibility
-- Chrome/Edge: Fully supported
-- Firefox: Fully supported  
-- Safari: Supported (may need local server for WebSocket)
-
-## 🔄 Future Enhancements
-
-Potential improvements:
-- More cache algorithms (FIFO, Random, etc.)
-- Export simulation data
-- Batch testing with multiple workloads
-- Cache size optimization recommendations
-- Memory usage visualization
-
-## 📝 License
-
-This project is for educational purposes. Feel free to modify and extend!
+* **Deployment:**
+    * **Render:** The cloud platform used for hosting the live application.
