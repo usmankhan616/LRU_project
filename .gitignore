@@ -1,0 +1,33 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Logs
+*.log
+
+# Environments
+.env
+venv/
+env/
+
+# IDEs
+.vscode/
+.idea/
+
+# Node (if any)
+node_modules/
+
+# Build artifacts
+dist/
+build/
+
+# Databases / temp
+*.sqlite3
+*.db
+*.tmp
+*.bak
+
+# OS junk
+.DS_Store
+Thumbs.db
