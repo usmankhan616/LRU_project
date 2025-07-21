@@ -2,7 +2,7 @@
 
 An interactive, real-time visualizer that compares the performance of LRU, LFU, and LRU-K cache eviction policies. This tool allows users to see how different algorithms handle various data access patterns and helps in understanding their core mechanics and trade-offs.
 
-### ✨ [Live Demo](https://your-render-app-url.onrender.com) ✨
+### ✨ [Live Demo](https://cache-visualizer.onrender.com/) ✨
 
 *(Replace the link above with your actual Render URL!)*
 
