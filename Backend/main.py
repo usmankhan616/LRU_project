@@ -136,6 +136,20 @@ class LFUCache:
 
 app = FastAPI()
 
+# Add these imports at the top of main.py
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
+# This should be after `app = FastAPI()` and after `app.add_middleware(...)`
+# This code will serve your HTML, CSS, and JS files.
+app.mount("/static", StaticFiles(directory="."), name="static")
+
+@app.get("/")
+async def read_index():
+    return FileResponse('index.html')
+
+# (The rest of your code, like the @app.websocket endpoint, remains the same)
+
 # --- NEW: Add CORS Middleware ---
 # This allows your frontend (on a different URL) to communicate with your backend.
 app.add_middleware(
