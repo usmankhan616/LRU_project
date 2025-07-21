@@ -6,9 +6,11 @@ from pydantic import BaseModel
 import random
 from typing import Dict, List, Any
 
+# --- NEW: Import CORS Middleware ---
+from fastapi.middleware.cors import CORSMiddleware
+
 # --------------------------------------------------------------------------
 # --- ALL CACHE LOGIC IS NOW INCLUDED DIRECTLY IN THIS FILE ---
-# --- LFUCACHE HAS BEEN COMPLETELY REWRITTEN FOR STABILITY ---
 # --------------------------------------------------------------------------
 
 class LRUCache:
@@ -92,10 +94,8 @@ class LFUCache:
             return None
         
         count = self.counts[key]
-        # Move key from old frequency list to new one
         del self.lists[count][key]
 
-        # if the list at min_count is now empty, increment min_count
         if not self.lists[count] and self.min_count == count:
             self.min_count += 1
 
@@ -110,16 +110,14 @@ class LFUCache:
 
         if key in self.vals:
             self.vals[key] = value
-            self.get(key) # This handles the frequency update
+            self.get(key)
             return
 
         if len(self.vals) >= self.capacity:
-            # Evict from the list with the minimum frequency
             evict_key, _ = self.lists[self.min_count].popitem(last=False)
             del self.vals[evict_key]
             del self.counts[evict_key]
 
-        # Add new item
         self.vals[key] = value
         self.counts[key] = 1
         self.lists[1][key] = None
@@ -127,9 +125,7 @@ class LFUCache:
 
     def get_state(self):
         all_items = []
-        # Sort by frequency to display
         for count in sorted(self.lists.keys()):
-            # Within the same frequency, they are ordered by recent use
             for key in reversed(self.lists[count]):
                 all_items.append(key)
         return all_items
@@ -139,6 +135,16 @@ class LFUCache:
 # --------------------------------------------------------------------------
 
 app = FastAPI()
+
+# --- NEW: Add CORS Middleware ---
+# This allows your frontend (on a different URL) to communicate with your backend.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"], # Allows all methods
+    allow_headers=["*"], # Allows all headers
+)
 
 class SimulationConfig(BaseModel):
     k_value: int

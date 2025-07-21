@@ -69,7 +69,16 @@ document.addEventListener('DOMContentLoaded', () => {
         statusMessage.textContent = 'Connecting...';
         resetUI();
         initializeChart();
-        socket = new WebSocket(`ws://127.0.0.1:8000/ws/simulation`);
+
+        // --- UPDATED CODE ---
+        // Dynamically determine WebSocket protocol and host
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsHost = window.location.host;
+        const wsUrl = `${wsProtocol}//${wsHost}/ws/simulation`;
+        
+        socket = new WebSocket(wsUrl);
+        // --- END OF UPDATED CODE ---
+
         socket.onopen = () => {
             statusMessage.textContent = 'Connection open. Starting simulation...';
             socket.send(JSON.stringify(config));
@@ -85,6 +94,12 @@ document.addEventListener('DOMContentLoaded', () => {
             startButton.disabled = false;
             pauseButton.disabled = true;
         };
+        socket.onerror = (error) => {
+            console.error("WebSocket Error:", error);
+            statusMessage.textContent = 'Connection error. Please check the server and refresh.';
+            startButton.disabled = false;
+            pauseButton.disabled = true;
+        }
     }
 
     function handlePause() {
